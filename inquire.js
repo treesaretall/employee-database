@@ -1,91 +1,141 @@
 const inquirer = require("inquirer");
 const fs = require("fs");
-const { getemployeenames } = require("./server.js");
+const db = require("./server.js");
 
-const employeeNames = getemployeenames()
 
-inquirer
-  .prompt([
-      {
-          type: "list",
-          name: "options",
-          message: "What would you like to do?",
-          choices: [
-              "View All Employees",
-              "View All Departments",
-              "View All Roles",
-              "Add Employee",
-              "Add Department",
-              "Update Employee Role",
-          ]
-      },
-      {
-          type: "input",
-          name: "adddept",
-          message: "What would you like to name the department?",
-          when: (answers) => answers.options === "Add Department"
-      },
-      {
-          type: "input",
-          name: "addrolename",
-          message: "What would you like to name the role?",
-          when: (answers) => answers.options === "Add Role"
-      },
-      {
-          type: "input",
-          name: "addrolesalary",
-          message: "What is the salary for this role?",
-          when: (answers) => answers.options === "Add Role" && answers.addrolename !== ""
-      },
-      {
-          type: "input",
-          name: "addroledept",
-          message: "Which department does this role belong to?",
-          when: (answers) => answers.options === "Add Role" && answers.addrolesalary !== ""
-      },
-      {
-          type: "input",
-          name: "addemployeefirst",
-          message: "What is the employee's first name?",
-          when: (answers) => answers.options === "Add Employee"
-      },
-      {
-          type: "input",
-          name: "addemployeelast",
-          message: "What is the employee's last name?",
-          when: (answers) => answers.options === "Add Employee" && answers.addemployeefirst !== ""
-      },
-      {
-          type: "input",
-          name: "addemployeerole",
-          message: "What is the employee's role?",
-          when: (answers) => answers.options === "Add Employee" && answers.addemployeelast !== ""
-      },
-      {
-          type: "input",
-          name: "addemployeemanager",
-          message: "Who is the employee's manager?",
-          when: (answers) => answers.options === "Add Employee" && answers.addemployeerole !== ""
-      },
-      {
-          type: "list",
-          name: "updateemployeerole",
-          message: "Choose an employee to update their role",
-          choices: [employeeNames],
-          when: (answers) => answers.options === "Update Employee Role"
-      }
-      
-      
-      
-      
-  ])
-  .then((answers) => {
-    // Use user feedback for... whatever!!
-  })
-  .catch((error) => {
-    if (error.isTtyError) {
-      // Prompt couldn't be rendered in the current environment
-    } else {
-      // Something else went wrong
-    }
-  });
+
+const menu = () => {
+    inquirer
+        .prompt([
+            {
+                type: "list",
+                name: "options",
+                message: "What would you like to do?",
+                choices: [
+                    "View All Employees",
+                    "View All Departments",
+                    "View All Roles",
+                    "Add Employee",
+                    "Add Department",
+                    "Add Role",
+                    "Update Employee Role",
+                ]
+            }
+        ])
+        .then((answer) => {
+            switch (answer.options) {
+                case 'View All Employees':
+                    viewEmployees();
+                    break;
+                case 'View All Roles':
+                    viewRoles();
+                    break;
+                case 'View All Departments':
+                    viewDepartments();
+                    break;
+                case 'Add Employee':
+                    addEmployee();
+                    break;
+                case 'Add Role':
+                    addRole();
+                    break;
+                case 'Add Department':
+                    addDepartment();
+                    break;
+                case 'Update employee role':
+                    updateEmployeeRole();
+                    break;
+                default:
+                    console.log('Invalid Response, please try again');
+                    menu();
+                    break;
+            }
+        });
+};
+
+const viewEmployees = () => {
+    db.query('SELECT * FROM employee LEFT JOIN role ON employee.role_id = role.id', (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        menu();
+    });
+};
+
+const viewRoles = () => {
+    db.query('SELECT * FROM role', (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        menu();
+    });
+};
+
+const viewDepartments = () => {
+    db.query('SELECT * FROM department', (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        menu();
+    });
+};
+
+const addEmployee = () => {
+    inquirer
+          .prompt([
+                {
+                    type: "input",
+                    name: "first_name",
+                    message: "What is the employee's first name?"
+                },
+                {
+                    type: "input",
+                    name: "last_name",
+                    message: "What is the employee's last name?"
+                },
+                {
+                    type: "input",
+                    name: "role_id",
+                    message: "What is the employee's role ID?"
+                },
+                {
+                    type: "input",
+                    name: "manager_id",
+                    message: "What is the employee's manager ID?"
+                }
+            ])
+          .then((answer) => {
+                db.query('INSERT INTO employee SET ?', answer, (err, res) => {
+                    if (err) throw err;
+                    console.table(res);
+                    menu();
+                });
+            });
+};
+
+const addRole = () => {
+    inquirer
+       .prompt([
+            {
+                type: "input",
+                name: "title",
+                message: "What is the role's title?"
+            },
+            {
+                type: "input",
+                name: "salary",
+                message: "What is the role's salary?"
+            },
+            {
+                type: "input",
+                name: "department_id",
+                message: "What is the role's department ID?"
+            }
+        ])
+       .then((answer) => {
+            db.query('INSERT INTO role SET ? ', answer, (err, res) => {
+                if (err) throw err;
+                console.table(res);
+                menu();
+            });
+        });
+}
+
+menu();

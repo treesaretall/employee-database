@@ -13,6 +13,16 @@ const db = mysql.createConnection({
 
 db.connect((err) => { if (err) throw err });
 
+app.use((req, res) => {
+    res.status(404).end();
+});
+
+app.listen(PORT, () => {
+    console.log(`App listening on PORT ${PORT}`);
+});
+
+module.exports = db;
+
 
 // // view all departments 
 // db.query('SELECT * FROM department', (err, res) => {
@@ -24,16 +34,11 @@ db.connect((err) => { if (err) throw err });
 // });
 
 
-const getemployeenames = (callback) => {
-  db.query('SELECT * FROM employee', (err, res) => {
-      if (err) {
-        throw err;
-    } else {
-      const employeeNames = res.map(employee => employee.first_name);
-          return(employeeNames);
-    }
-  });
-};
+// const getemployees = () => {
+//   db.query('SELECT * FROM employee', (err, res) => {
+//     console.table(err, res);
+// });
+// };
 
 
 // // add a department
@@ -44,17 +49,3 @@ const getemployeenames = (callback) => {
 // db.query('INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)', ['John', 'Doe', 1, 1]);
 // // update an employee role
 // db.query('UPDATE employee SET role_id =? WHERE id =?', [2, 1]);
-
-app.use((req, res) => {
-    res.status(404).end();
-});
-
-
-app.listen(PORT, () => {
-    console.log(`App listening on PORT ${PORT}`);
-});
-
-
-
-
-module.exports = { getemployeenames };
