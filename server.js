@@ -22,30 +22,3 @@ app.listen(PORT, () => {
 });
 
 module.exports = db;
-
-
-// // view all departments 
-// db.query('SELECT * FROM department', (err, res) => {
-//     console.log(err, res);
-// });
-// // view all roles
-// db.query('SELECT * FROM role', (err, res) => {
-//     console.log(err, res);
-// });
-
-
-// const getemployees = () => {
-//   db.query('SELECT * FROM employee', (err, res) => {
-//     console.table(err, res);
-// });
-// };
-
-
-// // add a department
-// db.query('INSERT INTO department (name) VALUES (?)', ['IT'], (err, res));
-// // add a role
-// db.query('INSERT INTO role (title, salary, department_id) VALUES (?,?,?)', ['Software Engineer', 100000, 1]);
-// // add an employee
-// db.query('INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)', ['John', 'Doe', 1, 1]);
-// // update an employee role
-// db.query('UPDATE employee SET role_id =? WHERE id =?', [2, 1]);

@@ -1,5 +1,4 @@
 const inquirer = require("inquirer");
-const fs = require("fs");
 const db = require("./server.js");
 
 
@@ -42,7 +41,7 @@ const menu = () => {
                 case 'Add Department':
                     addDepartment();
                     break;
-                case 'Update employee role':
+                case 'Update Employee Role':
                     updateEmployeeRole();
                     break;
                 default:
@@ -112,7 +111,7 @@ const addEmployee = () => {
 
 const addRole = () => {
     inquirer
-       .prompt([
+        .prompt([
             {
                 type: "input",
                 name: "title",
@@ -129,13 +128,54 @@ const addRole = () => {
                 message: "What is the role's department ID?"
             }
         ])
-       .then((answer) => {
+        .then((answer) => {
             db.query('INSERT INTO role SET ? ', answer, (err, res) => {
                 if (err) throw err;
                 console.table(res);
                 menu();
             });
         });
+};
+
+const addDepartment = () => {
+    inquirer
+           .prompt([
+                {
+                    type: "input",
+                    name: "name",
+                    message: "What is the department's name?"
+                }
+            ])
+           .then((answer) => {
+                db.query('INSERT INTO department SET? ', answer, (err, res) => {
+                    if (err) throw err;
+                    console.table(res);
+                    menu();
+                });
+            });
+};
+
+const updateEmployeeRole = () => {
+    inquirer
+          .prompt([
+                {
+                    type: "input",
+                    name: "employee_id",
+                    message: "What is the employee's current ID?"
+                },
+                {
+                    type: "input",
+                    name: "role_id",
+                    message: "What is the employee's new role ID?"
+                }
+            ])
+          .then((answer) => {
+                db.query('UPDATE employee SET role_id =? WHERE id =?', [answer.role_id, answer.employee_id], (err, res) => {
+                    if (err) throw err;
+                    console.table(res);
+                    menu();
+                });
+            });
 }
 
 menu();
